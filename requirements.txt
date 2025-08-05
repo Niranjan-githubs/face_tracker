@@ -1,0 +1,17 @@
+# Core dependencies
+opencv-python==4.9.0.80
+numpy==1.26.4
+ultralytics==8.1.28
+insightface==0.7.3
+onnxruntime==1.17.0
+scikit-learn==1.4.0
+
+# ByteTracker dependencies
+torch==2.2.0
+torchvision==0.17.0
+filterpy==1.4.5
+
+# Additional utilities
+Pillow==10.2.0
+tqdm==4.66.1
+matplotlib==3.8.3 

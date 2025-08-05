@@ -1,0 +1,177 @@
+"""
+Demo script for the Real-Time Video Analytics System
+This script demonstrates the system structure and provides usage examples.
+"""
+
+import os
+import sys
+
+def print_system_info():
+    """Print system information and structure"""
+    print("🎯 Real-Time Video Analytics System")
+    print("=" * 50)
+    print()
+    print("📁 Project Structure:")
+    print("├── src/")
+    print("│   ├── main.py           # Main processing pipeline")
+    print("│   ├── detect_track.py   # Person detection & tracking")
+    print("│   ├── face_crop.py      # Face detection & cropping")
+    print("│   ├── face_recog.py     # Face recognition & re-ID")
+    print("│   ├── utils.py          # Utility functions")
+    print("│   └── config.py         # Configuration settings")
+    print("├── models/               # Model files (auto-downloaded)")
+    print("├── assets/")
+    print("│   ├── input_video.mp4   # Input video file")
+    print("│   ├── output_video.avi  # Processed output")
+    print("│   └── faces/            # Cropped face images")
+    print("├── output/               # Additional outputs")
+    print("├── requirements.txt      # Python dependencies")
+    print("├── README.md             # Documentation")
+    print("├── test_installation.py  # Installation test")
+    print("└── demo.py               # This demo script")
+    print()
+
+def print_features():
+    """Print system features"""
+    print("🚀 Key Features:")
+    print("• Person Detection: YOLOv8 for accurate detection")
+    print("• Person Tracking: ByteTracker for robust tracking")
+    print("• Face Detection: InsightFace RetinaFace")
+    print("• Face Re-identification: 512D embeddings with cosine similarity")
+    print("• Real-time Visualization: Bounding boxes, IDs, face panels")
+    print("• Performance Monitoring: FPS, statistics, progress")
+    print("• Video Export: Processed video with overlays")
+    print("• CPU Optimized: Designed for CPU-only processing")
+    print()
+
+def print_usage_instructions():
+    """Print usage instructions"""
+    print("📖 Usage Instructions:")
+    print()
+    print("1. Install Dependencies:")
+    print("   pip install -r requirements.txt")
+    print()
+    print("2. Prepare Your Video:")
+    print("   • Place your MP4 video in assets/input_video.mp4")
+    print("   • Or update the path in src/config.py")
+    print()
+    print("3. Run the System:")
+    print("   python src/main.py")
+    print()
+    print("4. Interactive Controls:")
+    print("   • 'q': Quit the application")
+    print("   • 's': Save current frame")
+    print("   • 'c': Clear face recognition cache")
+    print()
+
+def print_configuration():
+    """Print configuration options"""
+    print("⚙️ Configuration Options (src/config.py):")
+    print()
+    print("Detection & Tracking:")
+    print("• PERSON_CONFIDENCE_THRESHOLD = 0.5")
+    print("• FACE_CONFIDENCE_THRESHOLD = 0.7")
+    print("• TRACKING_ALGORITHM = 'bytetrack'")
+    print()
+    print("Face Re-identification:")
+    print("• FACE_SIMILARITY_THRESHOLD = 0.7")
+    print("• EMBEDDING_CACHE_SIZE = 1000")
+    print()
+    print("Performance:")
+    print("• TARGET_FPS = 15")
+    print("• FACE_DETECTION_INTERVAL = 3")
+    print("• MIN_FACE_SIZE = 30")
+    print()
+
+def print_technical_details():
+    """Print technical implementation details"""
+    print("🔧 Technical Implementation:")
+    print()
+    print("Pipeline Flow:")
+    print("1. Video Input → Frame Extraction")
+    print("2. Person Detection → YOLOv8")
+    print("3. Person Tracking → ByteTracker")
+    print("4. Face Detection → InsightFace (within person boxes)")
+    print("5. Face Recognition → 512D embeddings")
+    print("6. Re-identification → Cosine similarity matching")
+    print("7. Visualization → Bounding boxes, IDs, face panels")
+    print("8. Video Output → Processed video with overlays")
+    print()
+    print("Key Algorithms:")
+    print("• ByteTracker: Handles occlusion, reappearance, ID persistence")
+    print("• Cosine Similarity: Face matching with configurable threshold")
+    print("• FIFO Cache: Memory-efficient embedding storage")
+    print("• Frame Skipping: Performance optimization for face detection")
+    print()
+
+def print_output_examples():
+    """Print output examples"""
+    print("📊 Output Examples:")
+    print()
+    print("Video Output:")
+    print("• assets/output_video.avi - Processed video with overlays")
+    print("• Real-time bounding boxes and IDs")
+    print("• Face panels showing detected faces")
+    print("• Statistics overlay (FPS, counts, etc.)")
+    print()
+    print("Face Images:")
+    print("• assets/faces/face_1_frame_100.jpg")
+    print("• assets/faces/face_2_frame_150.jpg")
+    print("• Individual face crops for analysis")
+    print()
+    print("Statistics:")
+    print("• FPS: Current processing speed")
+    print("• People Detected: Number of tracked persons")
+    print("• Faces Detected: Number of detected faces")
+    print("• Unique Faces: Number of distinct face IDs")
+    print("• Embedding Matches: Number of face re-identifications")
+    print()
+
+def print_troubleshooting():
+    """Print troubleshooting tips"""
+    print("🔍 Troubleshooting:")
+    print()
+    print("Low FPS:")
+    print("• Reduce FACE_DETECTION_INTERVAL")
+    print("• Use lower video resolution")
+    print("• Consider GPU acceleration")
+    print()
+    print("Poor Face Recognition:")
+    print("• Adjust FACE_SIMILARITY_THRESHOLD")
+    print("• Increase MIN_FACE_SIZE")
+    print("• Improve video quality")
+    print()
+    print("Memory Issues:")
+    print("• Reduce EMBEDDING_CACHE_SIZE")
+    print("• Process shorter video segments")
+    print("• Clear cache periodically ('c' key)")
+    print()
+    print("Installation Issues:")
+    print("• Run: python test_installation.py")
+    print("• Check Python version (3.8+)")
+    print("• Install missing dependencies")
+    print()
+
+def main():
+    """Main demo function"""
+    print_system_info()
+    print_features()
+    print_usage_instructions()
+    print_configuration()
+    print_technical_details()
+    print_output_examples()
+    print_troubleshooting()
+    
+    print("=" * 50)
+    print("🎉 System is ready to use!")
+    print()
+    print("Next steps:")
+    print("1. Install dependencies: pip install -r requirements.txt")
+    print("2. Test installation: python test_installation.py")
+    print("3. Add your video: assets/input_video.mp4")
+    print("4. Run the system: python src/main.py")
+    print()
+    print("For detailed documentation, see README.md")
+
+if __name__ == "__main__":
+    main() 
