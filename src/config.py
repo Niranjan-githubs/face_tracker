@@ -22,7 +22,7 @@ MIN_FACE_SIZE = 30
 # Detection & Tracking
 PERSON_CONFIDENCE_THRESHOLD = 0.5
 FACE_CONFIDENCE_THRESHOLD = 0.7
-TRACKING_ALGORITHM = "bytetrack"  # "bytetrack" or "deepsort"
+TRACKING_ALGORITHM = "deepsort"  # "bytetrack" or "deepsort"
 
 # Face Re-Identification
 FACE_SIMILARITY_THRESHOLD = 0.7
@@ -47,8 +47,7 @@ PANEL_BG_COLOR = (50, 50, 50)   # Dark gray
 YOLO_MODEL_PATH = os.path.join(MODELS_DIR, "yolov8n.pt")
 FACENET_MODEL_PATH = os.path.join(MODELS_DIR, "buffalo_l")
 
-# ByteTracker settings
-TRACK_BUFFER = 30
-TRACK_THRESH = 0.5
-HIGH_THRESH = 0.6
-MATCH_THRESH = 0.8 
+# DeepSORT settings
+MAX_DISAPPEARED = 30
+MIN_HITS = 3
+IOU_THRESHOLD = 0.3 

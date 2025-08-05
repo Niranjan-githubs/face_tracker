@@ -5,7 +5,7 @@ A comprehensive real-time video analytics system that can automatically detect, 
 ## 🎯 Features
 
 - **Person Detection**: YOLOv8 for accurate person detection
-- **Person Tracking**: ByteTracker for robust multi-object tracking
+- **Person Tracking**: DeepSORT for robust multi-object tracking
 - **Face Detection**: InsightFace RetinaFace for precise face detection
 - **Face Re-identification**: 512D embeddings with cosine similarity matching
 - **Real-time Visualization**: Bounding boxes, IDs, confidence scores, face panels
@@ -17,7 +17,7 @@ A comprehensive real-time video analytics system that can automatically detect, 
 ```
 realtime_video_analytics/
 ├── src/
-│   ├── detect_track.py    # Person detection & tracking (YOLOv8 + ByteTracker)
+│   ├── detect_track.py    # Person detection & tracking (YOLOv8 + DeepSORT)
 │   ├── face_crop.py       # Face detection within person boxes
 │   ├── face_recog.py      # Face recognition & re-identification
 │   ├── utils.py           # Utility functions & helpers
@@ -87,7 +87,7 @@ Edit `src/config.py` to customize:
 ```python
 PERSON_CONFIDENCE_THRESHOLD = 0.5    # Person detection confidence
 FACE_CONFIDENCE_THRESHOLD = 0.7      # Face detection confidence
-TRACKING_ALGORITHM = "bytetrack"     # Tracking algorithm
+TRACKING_ALGORITHM = "deepsort"     # Tracking algorithm
 ```
 
 ### Face Re-identification
@@ -106,7 +106,7 @@ FACE_DETECTION_INTERVAL = 3          # Face detection frequency
 
 ### Person Detection & Tracking
 - **Model**: YOLOv8-nano (optimized for CPU)
-- **Algorithm**: ByteTracker for robust tracking
+- **Algorithm**: DeepSORT for robust tracking
 - **Features**: Handles occlusion, reappearance, and ID persistence
 
 ### Face Detection & Recognition
@@ -189,7 +189,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🙏 Acknowledgments
 
 - **YOLOv8**: Ultralytics for object detection
-- **ByteTracker**: ByteDance for tracking algorithm
+- **DeepSORT**: Deep learning-based tracking algorithm
 - **InsightFace**: DeepInsight for face recognition
 - **OpenCV**: Computer vision library
 

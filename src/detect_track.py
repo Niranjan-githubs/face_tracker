@@ -1,5 +1,5 @@
 """
-Person detection and tracking using YOLOv8 and ByteTracker
+Person detection and tracking using YOLOv8 and DeepSORT
 """
 
 import cv2
@@ -10,48 +10,50 @@ import torch
 from src.config import *
 from src.utils import calculate_iou
 
-class ByteTracker:
+class DeepSORTTracker:
     """
-    Simplified ByteTracker implementation for person tracking
+    Simplified DeepSORT implementation for person tracking
     """
     def __init__(self):
         self.tracks = {}
         self.next_id = 1
-        self.track_buffer = TRACK_BUFFER
-        self.track_thresh = TRACK_THRESH
-        self.high_thresh = HIGH_THRESH
-        self.match_thresh = MATCH_THRESH
+        self.max_disappeared = 30
+        self.min_hits = 3
+        self.iou_threshold = 0.3
         
     def update(self, detections: List[Tuple]) -> List[Tuple]:
-        """Update tracks with new detections using ByteTracker logic"""
+        """Update tracks with new detections using DeepSORT logic"""
         if not detections:
             # Update existing tracks
             for track_id in list(self.tracks.keys()):
-                self.tracks[track_id]['time_since_update'] += 1
-                if self.tracks[track_id]['time_since_update'] > self.track_buffer:
+                self.tracks[track_id]['disappeared'] += 1
+                if self.tracks[track_id]['disappeared'] > self.max_disappeared:
                     del self.tracks[track_id]
             return []
         
-        # Separate high and low confidence detections
-        high_conf_dets = []
-        low_conf_dets = []
+        # If no existing tracks, create new ones
+        if not self.tracks:
+            for bbox, conf in detections:
+                track_id = self.next_id
+                self.tracks[track_id] = {
+                    'bbox': bbox,
+                    'confidence': conf,
+                    'disappeared': 0,
+                    'hits': 1
+                }
+                self.next_id += 1
+            return [(bbox, track_id, conf) for track_id, (bbox, conf) in enumerate(detections, 1)]
         
-        for bbox, conf in detections:
-            if conf >= self.high_thresh:
-                high_conf_dets.append((bbox, conf))
-            elif conf >= self.track_thresh:
-                low_conf_dets.append((bbox, conf))
-        
-        # First, match high confidence detections to existing tracks
+        # Match detections to existing tracks using IoU
         matched_tracks = set()
         current_tracks = []
         
-        for bbox, conf in high_conf_dets:
+        for bbox, conf in detections:
             best_match = None
-            best_iou = self.match_thresh
+            best_iou = self.iou_threshold
             
             for track_id, track_info in self.tracks.items():
-                if track_info['time_since_update'] <= self.track_buffer:
+                if track_info['disappeared'] <= self.max_disappeared:
                     iou = calculate_iou(bbox, track_info['bbox'])
                     if iou > best_iou:
                         best_iou = iou
@@ -61,7 +63,8 @@ class ByteTracker:
                 # Update existing track
                 self.tracks[best_match]['bbox'] = bbox
                 self.tracks[best_match]['confidence'] = conf
-                self.tracks[best_match]['time_since_update'] = 0
+                self.tracks[best_match]['disappeared'] = 0
+                self.tracks[best_match]['hits'] += 1
                 matched_tracks.add(best_match)
                 current_tracks.append((bbox, best_match, conf))
             else:
@@ -70,40 +73,20 @@ class ByteTracker:
                 self.tracks[track_id] = {
                     'bbox': bbox,
                     'confidence': conf,
-                    'time_since_update': 0
+                    'disappeared': 0,
+                    'hits': 1
                 }
                 current_tracks.append((bbox, track_id, conf))
                 self.next_id += 1
         
-        # Then, try to match low confidence detections to unmatched tracks
-        for bbox, conf in low_conf_dets:
-            best_match = None
-            best_iou = self.match_thresh
-            
-            for track_id, track_info in self.tracks.items():
-                if (track_id not in matched_tracks and 
-                    track_info['time_since_update'] <= self.track_buffer):
-                    iou = calculate_iou(bbox, track_info['bbox'])
-                    if iou > best_iou:
-                        best_iou = iou
-                        best_match = track_id
-            
-            if best_match is not None:
-                # Update existing track
-                self.tracks[best_match]['bbox'] = bbox
-                self.tracks[best_match]['confidence'] = conf
-                self.tracks[best_match]['time_since_update'] = 0
-                matched_tracks.add(best_match)
-                current_tracks.append((bbox, best_match, conf))
-        
-        # Update time_since_update for unmatched tracks
+        # Update disappeared count for unmatched tracks
         for track_id in self.tracks:
             if track_id not in matched_tracks:
-                self.tracks[track_id]['time_since_update'] += 1
+                self.tracks[track_id]['disappeared'] += 1
         
         # Remove old tracks
         for track_id in list(self.tracks.keys()):
-            if self.tracks[track_id]['time_since_update'] > self.track_buffer:
+            if self.tracks[track_id]['disappeared'] > self.max_disappeared:
                 del self.tracks[track_id]
         
         return current_tracks
@@ -138,14 +121,14 @@ class PersonTracker:
     def __init__(self):
         """Initialize person detection and tracking system"""
         self.detector = PersonDetector()
-        self.tracker = ByteTracker()
+        self.tracker = DeepSORTTracker()
         
     def process_frame(self, frame: np.ndarray) -> List[Tuple]:
         """Process frame and return tracked persons"""
         # Detect people
         detections = self.detector.detect(frame)
         
-        # Track people using ByteTracker
+        # Track people using DeepSORT
         tracks = self.tracker.update(detections)
         
         return tracks
