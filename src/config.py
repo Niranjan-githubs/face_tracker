@@ -12,7 +12,7 @@ FACES_DIR = os.path.join(ASSETS_DIR, "faces")
 
 # Video Processing
 INPUT_VIDEO = os.path.join(ASSETS_DIR, "input_video.mp4")
-OUTPUT_VIDEO = os.path.join(ASSETS_DIR, "output_video.avi")
+OUTPUT_VIDEO = os.path.join(ASSETS_DIR, "output_video.mp4")
 
 # Performance Settings
 TARGET_FPS = 15

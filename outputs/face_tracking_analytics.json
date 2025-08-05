@@ -1,0 +1,227 @@
+{
+  "video_info": {
+    "input_path": "/Users/mahaashreeanburaj/face_tracker/assets/input_video.mp4",
+    "output_path": "outputs/input_video_bounded.avi",
+    "width": 640,
+    "height": 480,
+    "fps": 30.0,
+    "total_frames": 300,
+    "processing_start_time": "2025-08-05 15:42:05",
+    "processing_end_time": "2025-08-05 15:42:14",
+    "total_processing_duration": 6.226041316986084
+  },
+  "tracking_data": [
+    {
+      "frame_number": 0,
+      "timestamp": 1754388727.451782,
+      "processing_time": 1.5224168300628662,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388727.909941,
+      "processing_time": 0.17968988418579102,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388728.260918,
+      "processing_time": 0.2650911808013916,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388728.6413581,
+      "processing_time": 0.30666589736938477,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388728.894575,
+      "processing_time": 0.10618114471435547,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388729.224824,
+      "processing_time": 0.26145172119140625,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388729.4151921,
+      "processing_time": 0.10869503021240234,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388729.694885,
+      "processing_time": 0.20859599113464355,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388730.1767411,
+      "processing_time": 0.4118690490722656,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388730.564425,
+      "processing_time": 0.2907068729400635,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388730.868789,
+      "processing_time": 0.2344069480895996,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388731.608489,
+      "processing_time": 0.6705141067504883,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388731.921979,
+      "processing_time": 0.23581719398498535,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388732.165375,
+      "processing_time": 0.17534399032592773,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388732.510874,
+      "processing_time": 0.2776961326599121,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388732.771938,
+      "processing_time": 0.19170880317687988,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388733.023595,
+      "processing_time": 0.18343114852905273,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388733.391521,
+      "processing_time": 0.3005225658416748,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388733.60779,
+      "processing_time": 0.14861702919006348,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    },
+    {
+      "frame_number": 0,
+      "timestamp": 1754388733.82203,
+      "processing_time": 0.1466197967529297,
+      "persons_detected": 0,
+      "faces_detected": 0,
+      "active_persistent_faces": 0,
+      "person_tracks": [],
+      "face_tracks": []
+    }
+  ],
+  "face_analytics": {
+    "total_faces_detected": 0,
+    "unique_faces_tracked": 0,
+    "total_reidentifications": 0,
+    "face_detection_frames": 0,
+    "average_faces_per_frame": 0.0
+  },
+  "performance_metrics": {
+    "total_processing_time": 6.226041316986084,
+    "average_fps": 3.2123140502513796,
+    "frames_processed": 20
+  }
+}
