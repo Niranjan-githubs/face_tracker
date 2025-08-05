@@ -3,24 +3,24 @@ FACE TRACKING ANALYTICS SUMMARY
 
 Video Information:
   Input: /Users/mahaashreeanburaj/face_tracker/assets/input_video.mp4
-  Output: outputs/input_video_bounded.avi
-  Resolution: 640x480
-  FPS: 30.0
-  Total Frames: 300
+  Output: outputs/input_video_bounded.mp4
+  Resolution: 848x478
+  FPS: 30.051026239184655
+  Total Frames: 298
 
 Performance Metrics:
-  Frames Processed: 20
-  Average FPS: 3.21
-  Total Processing Time: 6.23s
+  Frames Processed: 298
+  Average FPS: 2.62
+  Total Processing Time: 113.83s
 
 Face Analytics:
-  Total Faces Detected: 0
-  Unique Faces Tracked: 0
-  Total Re-identifications: 0
-  Face Detection Frames: 0
-  Average Faces per Frame: 0.00
+  Total Faces Detected: 544
+  Unique Faces Tracked: 3
+  Total Re-identifications: 541
+  Face Detection Frames: 239
+  Average Faces per Frame: 1.83
 
 Processing Details:
-  Start Time: 2025-08-05 15:42:05
-  End Time: 2025-08-05 15:42:14
-  Duration: 6.23s
+  Start Time: 2025-08-05 16:57:43
+  End Time: 2025-08-05 16:59:43
+  Duration: 113.83s

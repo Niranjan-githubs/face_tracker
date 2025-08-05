@@ -58,15 +58,18 @@ class FaceProcessor:
         """Initialize face processing system"""
         self.detector = FaceDetector()
         self.frame_count = 0
+        self.previous_faces = []  # Store previous frame's faces for persistence
+        self.face_persistence_frames = 5  # Keep faces visible for N frames even if not detected
         
     def process_persons(self, frame: np.ndarray, 
                        tracked_persons: List[Tuple]) -> List[Tuple]:
-        """Process all tracked persons for face detection"""
+        """Process all tracked persons for face detection with persistence"""
         self.frame_count += 1
         
-        # Only detect faces every N frames for performance
+        # Detect faces every frame to reduce flickering
         if self.frame_count % FACE_DETECTION_INTERVAL != 0:
-            return []
+            # Return previous faces for persistence
+            return self.previous_faces
         
         all_faces = []
         
@@ -94,6 +97,11 @@ class FaceProcessor:
                     face_info['face_obj'],
                     face_info['confidence']
                 ))
+        
+        # Update previous faces for persistence
+        if all_faces:
+            self.previous_faces = all_faces
+        
         return all_faces
     
     def get_face_stats(self) -> Dict:
