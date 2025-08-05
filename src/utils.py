@@ -44,6 +44,75 @@ def draw_bounding_box(frame: np.ndarray, bbox: List[int],
     
     return frame
 
+def draw_person_box(frame: np.ndarray, bbox: List[int], 
+                   person_id: int, confidence: Optional[float] = None) -> np.ndarray:
+    """Draw person bounding box with prominent ID display"""
+    x1, y1, x2, y2 = bbox
+    
+    # Draw person bounding box with thicker lines
+    cv2.rectangle(frame, (x1, y1), (x2, y2), PERSON_BOX_COLOR, 3)
+    
+    # Create prominent ID label
+    id_text = f"PERSON {person_id}"
+    if confidence is not None and SHOW_CONFIDENCE_SCORES:
+        id_text += f" ({confidence:.2f})"
+    
+    # Calculate text position (top-left corner)
+    text_size = cv2.getTextSize(id_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+    text_x = x1
+    text_y = y1 - 15 if y1 - 15 > text_size[1] else y1 + text_size[1] + 15
+    
+    # Draw prominent text background
+    cv2.rectangle(frame, (text_x - 5, text_y - text_size[1] - 10), 
+                 (text_x + text_size[0] + 5, text_y + 5), PERSON_BOX_COLOR, -1)
+    
+    # Draw white border around text background
+    cv2.rectangle(frame, (text_x - 5, text_y - text_size[1] - 10), 
+                 (text_x + text_size[0] + 5, text_y + 5), (255, 255, 255), 2)
+    
+    # Draw ID text in white
+    cv2.putText(frame, id_text, (text_x, text_y), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+    
+    return frame
+
+def draw_face_box(frame: np.ndarray, bbox: List[int], 
+                 face_id: int, person_id: Optional[int], 
+                 confidence: Optional[float] = None) -> np.ndarray:
+    """Draw face bounding box with person ID association"""
+    x1, y1, x2, y2 = bbox
+    
+    # Draw face bounding box
+    cv2.rectangle(frame, (x1, y1), (x2, y2), FACE_BOX_COLOR, 2)
+    
+    # Create face label with person association
+    face_text = f"Face {face_id}"
+    if person_id is not None:
+        face_text += f" (P{person_id})"
+    if confidence is not None and SHOW_CONFIDENCE_SCORES:
+        face_text += f" ({confidence:.2f})"
+    
+    # Calculate text position (bottom-right corner)
+    text_size = cv2.getTextSize(face_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+    text_x = x2 - text_size[0] - 5
+    text_y = y2 + text_size[1] + 5
+    
+    # Ensure text doesn't go off screen
+    if text_x < 0:
+        text_x = x1
+    if text_y > frame.shape[0] - 10:
+        text_y = y1 - 5
+    
+    # Draw text background
+    cv2.rectangle(frame, (text_x - 2, text_y - text_size[1] - 2), 
+                 (text_x + text_size[0] + 2, text_y + 2), FACE_BOX_COLOR, -1)
+    
+    # Draw face text
+    cv2.putText(frame, face_text, (text_x, text_y), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    
+    return frame
+
 def draw_stats(frame: np.ndarray, stats: Dict) -> np.ndarray:
     """Draw statistics on frame"""
     if not SHOW_STATS:

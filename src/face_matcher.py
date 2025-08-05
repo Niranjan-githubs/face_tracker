@@ -31,6 +31,9 @@ class EnhancedFaceMatcher:
         self.disappeared_faces = {}  # {persistent_id: {'last_seen': int, 'embedding': array}}
         self.reappearance_threshold = 30  # frames to consider as reappearance
         
+        # Person-persistent ID mapping for consistency
+        self.person_persistent_mapping = {}  # {person_id: persistent_id}
+        
     def extract_embedding(self, face_img: np.ndarray) -> Optional[np.ndarray]:
         """Extract face embedding using DeepFace ArcFace model"""
         try:
@@ -52,27 +55,31 @@ class EnhancedFaceMatcher:
             print(f"Error extracting embedding: {e}")
         return None
     
-    def find_best_match(self, embedding: np.ndarray, threshold: float = 0.7) -> Tuple[Optional[int], float]:
-        """Find best matching persistent face using cosine similarity"""
+    def find_best_match(self, embedding: np.ndarray, threshold: float = 0.5) -> Tuple[Optional[int], float]:
+        """Find best matching persistent face using cosine similarity with improved logic"""
         best_match_id = None
         best_similarity = 0.0
         
-        # Check active persistent faces
+        # Check active persistent faces first (recent faces get priority)
         for persistent_id, face_data in self.persistent_faces.items():
             similarity = cosine_similarity(embedding, face_data['embedding'])
             
+            # Use a more lenient threshold for active faces
             if similarity > best_similarity and similarity >= threshold:
                 best_similarity = similarity
                 best_match_id = persistent_id
         
-        # Check disappeared faces for reappearance
-        for persistent_id, face_data in self.disappeared_faces.items():
-            if self.current_frame_id - face_data['last_seen'] > self.reappearance_threshold:
-                similarity = cosine_similarity(embedding, face_data['embedding'])
-                
-                if similarity > best_similarity and similarity >= threshold:
-                    best_similarity = similarity
-                    best_match_id = persistent_id
+        # If no good match found in active faces, check disappeared faces
+        if best_match_id is None:
+            for persistent_id, face_data in self.disappeared_faces.items():
+                # Only check faces that disappeared recently (within 10 frames)
+                if self.current_frame_id - face_data['last_seen'] <= 10:
+                    similarity = cosine_similarity(embedding, face_data['embedding'])
+                    
+                    # Use same threshold for disappeared faces
+                    if similarity > best_similarity and similarity >= threshold:
+                        best_similarity = similarity
+                        best_match_id = persistent_id
         
         return best_match_id, best_similarity
     
@@ -115,40 +122,63 @@ class EnhancedFaceMatcher:
             del self.persistent_faces[persistent_id]
     
     def process_frame_faces(self, frame_faces: List[Tuple]) -> List[Tuple]:
-        """Process faces in current frame and assign persistent IDs"""
+        """Process faces in current frame and assign persistent IDs with person consistency"""
         self.current_frame_id += 1
         processed_faces = []
         current_frame_matches = {}
         
+        # Group faces by person_id for consistency
+        person_faces = {}
         for face_img, face_bbox, person_id, person_conf, face_obj, face_conf in frame_faces:
-            # Extract embedding
-            embedding = self.extract_embedding(face_img)
+            if person_id not in person_faces:
+                person_faces[person_id] = []
+            person_faces[person_id].append((face_img, face_bbox, person_conf, face_obj, face_conf))
+        
+        # Process each person's faces
+        for person_id, faces in person_faces.items():
+            # Check if this person already has a persistent face ID from previous frames
+            existing_persistent_id = self._get_person_persistent_id(person_id)
             
-            if embedding is not None:
-                # Find best match
-                persistent_id, similarity = self.find_best_match(embedding, FACE_SIMILARITY_THRESHOLD)
+            for face_img, face_bbox, person_conf, face_obj, face_conf in faces:
+                # Extract embedding
+                embedding = self.extract_embedding(face_img)
                 
-                if persistent_id is not None:
-                    # Found matching persistent face
-                    self.update_persistent_face(persistent_id)
-                    confidence = similarity
-                    self.total_matches += 1
-                else:
-                    # New persistent face
-                    persistent_id = self.add_persistent_face(embedding)
-                    confidence = 1.0
-                
-                current_frame_matches[person_id] = persistent_id
-                
-                processed_faces.append((
-                    face_img,
-                    face_bbox,
-                    person_id,
-                    persistent_id,
-                    confidence,
-                    person_conf,
-                    face_conf
-                ))
+                if embedding is not None:
+                    if existing_persistent_id is not None:
+                        # Use existing persistent ID for this person
+                        persistent_id = existing_persistent_id
+                        # Update the face embedding to the current one
+                        self._update_face_embedding(persistent_id, embedding)
+                        confidence = 0.9  # High confidence for consistent person
+                        self.total_matches += 1
+                    else:
+                        # Find best match for new person
+                        persistent_id, similarity = self.find_best_match(embedding, FACE_SIMILARITY_THRESHOLD)
+                        
+                        if persistent_id is not None:
+                            # Found matching persistent face
+                            self.update_persistent_face(persistent_id)
+                            confidence = similarity
+                            self.total_matches += 1
+                        else:
+                            # New persistent face
+                            persistent_id = self.add_persistent_face(embedding)
+                            confidence = 1.0
+                        
+                        # Store the person-persistent_id mapping
+                        self._store_person_persistent_mapping(person_id, persistent_id)
+                    
+                    current_frame_matches[person_id] = persistent_id
+                    
+                    processed_faces.append((
+                        face_img,
+                        face_bbox,
+                        person_id,
+                        persistent_id,
+                        confidence,
+                        person_conf,
+                        face_conf
+                    ))
         
         # Track frame-level matches
         self.frame_tracking[self.current_frame_id] = current_frame_matches
@@ -208,8 +238,25 @@ class EnhancedFaceMatcher:
         self.persistent_faces.clear()
         self.disappeared_faces.clear()
         self.frame_tracking.clear()
+        self.person_persistent_mapping.clear()
         self.next_persistent_id = 1
         self.current_frame_id = 0
         self.total_matches = 0
         self.new_faces = 0
-        self.reappearances = 0 
+        self.reappearances = 0
+    
+    def _get_person_persistent_id(self, person_id: int) -> Optional[int]:
+        """Get persistent ID for a person if it exists"""
+        return self.person_persistent_mapping.get(person_id)
+    
+    def _store_person_persistent_mapping(self, person_id: int, persistent_id: int):
+        """Store mapping between person ID and persistent face ID"""
+        self.person_persistent_mapping[person_id] = persistent_id
+    
+    def _update_face_embedding(self, persistent_id: int, new_embedding: np.ndarray):
+        """Update face embedding for a persistent ID"""
+        if persistent_id in self.persistent_faces:
+            # Update embedding and last seen time
+            self.persistent_faces[persistent_id]['embedding'] = new_embedding
+            self.persistent_faces[persistent_id]['last_seen'] = self.current_frame_id
+            self.persistent_faces[persistent_id]['count'] += 1 

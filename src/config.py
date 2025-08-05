@@ -16,7 +16,7 @@ OUTPUT_VIDEO = os.path.join(ASSETS_DIR, "output_video.mp4")
 
 # Performance Settings
 TARGET_FPS = 15
-FACE_DETECTION_INTERVAL = 3  # Detect faces every N frames
+FACE_DETECTION_INTERVAL = 1  # Detect faces every frame to reduce flickering
 MIN_FACE_SIZE = 30
 
 # Detection & Tracking
@@ -25,7 +25,7 @@ FACE_CONFIDENCE_THRESHOLD = 0.7
 TRACKING_ALGORITHM = "deepsort"  # "bytetrack" or "deepsort"
 
 # Face Re-Identification
-FACE_SIMILARITY_THRESHOLD = 0.7
+FACE_SIMILARITY_THRESHOLD = 0.5  # Lower threshold for better matching
 EMBEDDING_CACHE_SIZE = 1000  # Maximum number of embeddings to store
 SHOW_CONFIDENCE_SCORES = True
 

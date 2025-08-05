@@ -134,18 +134,18 @@ class FaceTrackingSystem:
                     tracked_persons: List, 
                     processed_faces: List) -> np.ndarray:
         """Draw bounding boxes, IDs, and face panels"""
-        # Draw person bounding boxes
+        # Draw person bounding boxes with prominent ID display
         if DRAW_BOUNDING_BOXES:
             for bbox, person_id, confidence in tracked_persons:
-                frame = draw_bounding_box(frame, bbox, f"Person {person_id}", 
-                                        PERSON_BOX_COLOR, confidence)
+                # Draw person bounding box with prominent ID
+                frame = draw_person_box(frame, bbox, person_id, confidence)
         
         # Draw face bounding boxes and prepare face panel
         face_panel_faces = []
         for face_img, face_bbox, person_id, face_id, confidence, person_conf, face_conf in processed_faces:
             if DRAW_BOUNDING_BOXES:
-                frame = draw_bounding_box(frame, face_bbox, f"Face {face_id}", 
-                                        FACE_BOX_COLOR, confidence)
+                # Draw face bounding box with person ID association
+                frame = draw_face_box(frame, face_bbox, face_id, person_id, confidence)
             
             face_panel_faces.append((face_img, face_id, confidence))
         
@@ -276,7 +276,7 @@ class FaceTrackingSystem:
         print(f"Summary saved to: {summary_path}")
     
     def write_video_output(self):
-        """Write all processed frames to MP4 video"""
+        """Write all processed frames to MP4 video using image sequence method (macOS compatible)"""
         if not self.processed_frames or not self.video_properties:
             print("No frames to write or video properties missing")
             return
@@ -297,92 +297,53 @@ class FaceTrackingSystem:
         print(f"Writing {len(self.processed_frames)} frames to {output_path}")
         
         try:
-            # Try direct MP4 writing with different codecs
-            success = False
+            # Use image sequence method (more reliable on macOS)
+            print("Step 1: Saving frames as images...")
             
-            # Try different codecs - start with more reliable ones
-            codecs_to_try = [
-                ('XVID', 'XVID'),  # XVID - very reliable
-                ('MJPG', 'MJPG'),  # Motion JPEG - more reliable
-                ('mp4v', 'mp4v'),  # MP4V - less reliable
-                ('avc1', 'avc1')   # AVC1 - less reliable
+            # Create temporary directory for frames
+            temp_dir = "outputs/temp_frames"
+            os.makedirs(temp_dir, exist_ok=True)
+            
+            # Save frames as images
+            for i, frame in enumerate(self.processed_frames):
+                frame_path = os.path.join(temp_dir, f"frame_{i:04d}.jpg")
+                cv2.imwrite(frame_path, frame)
+            
+            print(f"✅ Saved {len(self.processed_frames)} frames as images")
+            
+            # Step 2: Convert image sequence to MP4
+            print("Step 2: Converting image sequence to MP4...")
+            
+            import subprocess
+            input_pattern = os.path.join(temp_dir, "frame_%04d.jpg")
+            
+            cmd = [
+                'ffmpeg',
+                '-framerate', str(self.video_properties['fps']),
+                '-i', input_pattern,
+                '-c:v', 'libx264',
+                '-preset', 'ultrafast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-y',
+                output_path
             ]
             
-            for codec_name, fourcc_code in codecs_to_try:
-                try:
-                    print(f"Trying codec: {codec_name}")
-                    
-                    # Use different file extensions based on codec
-                    if codec_name in ['mp4v', 'avc1']:
-                        temp_output_path = output_path
-                    elif codec_name == 'XVID':
-                        # XVID needs .avi extension
-                        temp_output_path = f"outputs/{input_video_name}_temp.avi"
-                    else:
-                        # For other codecs, use temporary file
-                        temp_output_path = f"outputs/{input_video_name}_temp.{codec_name.lower()}"
-                    
-                    fourcc = cv2.VideoWriter_fourcc(*fourcc_code)
-                    writer = cv2.VideoWriter(
-                        temp_output_path, 
-                        fourcc, 
-                        self.video_properties['fps'], 
-                        (self.video_properties['width'], self.video_properties['height'])
-                    )
-                    
-                    if writer.isOpened():
-                        # Write all frames
-                        for frame in self.processed_frames:
-                            writer.write(frame)
-                        
-                        writer.release()
-                        
-                        # Check if file was created and has content
-                        if os.path.exists(temp_output_path) and os.path.getsize(temp_output_path) > 1000:
-                            # If it's not already an MP4, convert it
-                            if temp_output_path != output_path:
-                                try:
-                                    import subprocess
-                                    cmd = [
-                                        'ffmpeg', '-i', temp_output_path,
-                                        '-c:v', 'libx264',
-                                        '-preset', 'ultrafast',
-                                        '-crf', '23',
-                                        '-y',
-                                        output_path
-                                    ]
-                                    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-                                    
-                                    # Remove temporary file
-                                    if os.path.exists(temp_output_path):
-                                        os.remove(temp_output_path)
-                                    
-                                    success = True
-                                    print(f"✅ Successfully converted to MP4 with codec: {codec_name}")
-                                    break
-                                except Exception as conv_e:
-                                    print(f"❌ Conversion failed for {codec_name}: {conv_e}")
-                                    if os.path.exists(temp_output_path):
-                                        os.remove(temp_output_path)
-                                    continue
-                            else:
-                                success = True
-                                print(f"✅ Successfully wrote MP4 with codec: {codec_name}")
-                                break
-                        else:
-                            print(f"❌ Codec {codec_name} failed - file too small or empty")
-                            if os.path.exists(temp_output_path):
-                                os.remove(temp_output_path)
-                    else:
-                        print(f"❌ Could not open writer with codec: {codec_name}")
-                        
-                except Exception as e:
-                    print(f"❌ Codec {codec_name} failed: {e}")
-                    if os.path.exists(temp_output_path):
-                        os.remove(temp_output_path)
-                    continue
+            print(f"Running: {' '.join(cmd)}")
+            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
             
-            if success:
+            # Clean up temporary files
+            for i in range(len(self.processed_frames)):
+                frame_path = os.path.join(temp_dir, f"frame_{i:04d}.jpg")
+                if os.path.exists(frame_path):
+                    os.remove(frame_path)
+            
+            # Remove temp directory
+            if os.path.exists(temp_dir):
+                os.rmdir(temp_dir)
+            
+            # Check if MP4 was created successfully
+            if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
                 # Update analytics
                 self.analytics['video_info']['output_path'] = output_path
                 
@@ -392,13 +353,33 @@ class FaceTrackingSystem:
                 print(f"📊 File size: {file_size:,} bytes ({file_size/1024/1024:.1f} MB)")
                 print(f"🎬 Frames written: {len(self.processed_frames)}")
             else:
-                print("❌ All MP4 codecs failed, falling back to AVI")
+                print("❌ MP4 conversion failed, falling back to AVI")
                 self._save_as_avi()
             
+        except subprocess.CalledProcessError as e:
+            print(f"❌ FFmpeg conversion failed: {e}")
+            print(f"Error output: {e.stderr}")
+            # Clean up and fallback
+            self._cleanup_temp_files()
+            self._save_as_avi()
         except Exception as e:
             print(f"❌ Error writing video: {e}")
-            # Fallback: save as AVI if MP4 conversion fails
+            # Clean up and fallback
+            self._cleanup_temp_files()
             self._save_as_avi()
+    
+    def _cleanup_temp_files(self):
+        """Clean up temporary files"""
+        temp_dir = "outputs/temp_frames"
+        if os.path.exists(temp_dir):
+            for i in range(len(self.processed_frames)):
+                frame_path = os.path.join(temp_dir, f"frame_{i:04d}.jpg")
+                if os.path.exists(frame_path):
+                    os.remove(frame_path)
+            try:
+                os.rmdir(temp_dir)
+            except:
+                pass
     
     def _save_as_avi(self):
         """Save video as AVI format"""
