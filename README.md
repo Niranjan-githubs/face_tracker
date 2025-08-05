@@ -174,13 +174,7 @@ FACE_DETECTION_INTERVAL = 3          # Face detection frequency
 - Monitor system resources during processing
 - Consider batch processing for large videos
 
-## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for:
-- Bug fixes
-- Performance improvements
-- New features
-- Documentation updates
 
 ## 📄 License
 
